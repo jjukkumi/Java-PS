@@ -1,31 +1,20 @@
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class Solution {
     public String solution(String[] participant, String[] completion) {
-        Map <String, Integer> parMap = new HashMap();
-        String answer = "";
-        for (String person: participant) {
-            parMap.put(person, 0);
-        }
+        String answer;
+        Stream<String> parStream = Stream.of(participant);
+        Map<String, Integer> parMap = Arrays.stream(participant).collect(Collectors.toMap(person -> person, person -> 0, (a, b) -> b));
 
-        for (String person: participant) {
-            if (parMap.containsKey(person)) {
-                int value = parMap.get(person);
-                parMap.put(person, value + 1);
-            }
-        }
+        Arrays.stream(participant).forEach(person -> parMap.put(person, parMap.get(person) + 1));
 
-        for (String person: completion) {
-            int value = parMap.get(person);
-            parMap.put(person, value - 1);
-        }
-        for (String person : participant) {
-            if (parMap.get(person).equals(1)) {
-                answer = person;
-                break;
-            }
-        }
+        Arrays.stream(completion).forEach(person -> parMap.put(person, parMap.get(person) - 1));
+
+        answer = Arrays.stream(participant).filter(person -> parMap.get(person).equals(1)).findFirst().orElse("");
+
         return answer;
     }
 }
