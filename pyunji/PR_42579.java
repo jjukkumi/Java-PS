@@ -1,59 +1,56 @@
 import java.util.*;
 import java.util.stream.Collectors;
+
 class Solution {
     public int[] solution(String[] genres, int[] plays) {
-        Comparator<Map.Entry<? extends Object, Integer>> comparator = new Comparator<>() {
-        @Override
-        public int compare(Map.Entry<? extends Object, Integer> o1, Map.Entry<? extends Object, Integer> o2) {
-            if(o1.getValue()<o2.getValue())
-                return 1;
-            else if(o1.getValue()>o2.getValue())
-                return -1;
-            return 0;
+        /* 고유번호, 장르, 재생횟수가 들어있는 Music 객체 생성 */
+        class Music {
+            int id;
+            String genre;
+            int play;
+            Music(int id, String genre, int play) {
+                this.id = id;
+                this.genre = genre;
+                this.play = play;
             }
-        };
-        Map<String, Integer> genCntMap = new HashMap<>();
-        for (int i=0;i< genres.length;i++){
-            if (genCntMap.containsKey(genres[i])) {
-                genCntMap.put(genres[i], genCntMap.get(genres[i]) + plays[i]);
-            } else {
-                genCntMap.put(genres[i], plays[i]);
-            }
-        }
-        List<Map.Entry<String, Integer>> sortedCntList = genCntMap.entrySet().stream().sorted(comparator)
-                .collect(Collectors.toList());
-        ArrayList<String> sortedKeyList = new ArrayList<>();
-        for(int i = 0;i<sortedCntList.size();i++) {
-            sortedKeyList.add(sortedCntList.get(i).getKey());
-        }
-        Map<String, Map<Integer, Integer>> genIdCntMap = new HashMap<>();
-        for (int i = 0; i < genres.length; i++) {
-            if (genIdCntMap.containsKey(genres[i])){
-                Map<Integer, Integer> tmpMap = genIdCntMap.get(genres[i]);
-                tmpMap.put(i, plays[i]);
-                genIdCntMap.put(genres[i], tmpMap);
-            } else {
-                Map<Integer, Integer> tmpMap = new HashMap<>();
-                tmpMap.put(i, plays[i]);
-                genIdCntMap.put(genres[i], tmpMap);
-            }
-        }
-        Map<String, List<Map.Entry<Integer, Integer>>> genIdCntListMap = new HashMap<>();
-        for (String genre:sortedKeyList){
-            genIdCntListMap.put(genre, genIdCntMap.get(genre).entrySet().stream().sorted(comparator).collect(Collectors.toList()));
-        }
-        ArrayList<Integer> answerList = new ArrayList();
-        for(String genre: sortedKeyList){
-            List<Map.Entry<Integer, Integer>> oneList = genIdCntListMap.get(genre);
-            if (oneList.size() < 2) {
-                answerList.add(oneList.get(0).getKey());
-            } else {
-                for(int i = 0; i < 2; i++){
-                    answerList.add(oneList.get(i).getKey());
-                }
-            }
-        }
-        return answerList.stream().mapToInt(i->i).toArray();
 
+            public int getId() {
+                return id;
+            }
+
+            public String getGenre() {
+                return genre;
+            }
+
+            public int getPlay() {
+                return play;
+            }
+        }
+
+        /* Music객체를 저장하는 ArrayList 생성 */
+        ArrayList<Music> musicArrayList = new ArrayList<>();
+        for (int i = 0; i < genres.length; i++) musicArrayList.add(new Music(i, genres[i], plays[i]));
+        /* Music객체를 재생 횟수가 많은 순서로 정렬 */
+        musicArrayList.sort(Comparator.comparing(Music::getPlay).reversed());
+
+        /* 장르를 key로 갖고 장르별 총 재생 횟수를 value로 갖는 Map을 생성 */
+        Map<String, Integer> genPlMap = musicArrayList.stream()
+                .collect(Collectors.groupingBy(Music::getGenre, Collectors.summingInt(Music::getPlay)));
+
+        /* 재생 횟수가 많은 장르 순서로 장르이름을 저장한 리스트 생성 */
+        List<String> genOrdList = genPlMap.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        /* 1. musicArrayList를 정렬된 genOrdList의 장르 이름 순으로 필터링한다.
+        *  2. 2개의 Music객체만 골라낸다.
+        *  3. Music객체의 id값만 가져와 새로운 ArrayList를 생성한다.
+        *  4. collectIds에 추가한다. */
+        ArrayList<Integer> collectIds = new ArrayList<>();
+        for(String gen:genOrdList) {
+            collectIds.addAll(musicArrayList.stream().filter(music -> music.getGenre().equals(gen)).limit(2)
+                    .map(Music::getId).collect(Collectors.toCollection(ArrayList::new)));
+        }
+        return collectIds.stream().mapToInt(i -> i).toArray();
     }
 }
