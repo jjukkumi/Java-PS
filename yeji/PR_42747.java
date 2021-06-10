@@ -1,26 +1,21 @@
 import java.util.*;
+import java.util.stream.*;
 
-class Solution {
+class PR_42747 {
     public int solution(int[] citations) {
         int answer = 0;
         
-        reverseNumber(citations);
+        List<Integer> citationList = Arrays.stream(citations).boxed().collect(Collectors.toList());
+        
+        Collections.sort(citationList, Collections.reverseOrder());
 
-        for(int i=0; i<citations.length; i++){
-            if(citations[i]<= i){
+        for(int i=0; i<citationList.size(); i++){
+            if(citationList.get(i) <= i){
                 return i;
             }
+                
         }
         
         return answer;
-    }
-    
-    public static void reverseNumber(int[] arr){
-        Arrays.sort(arr);
-        for (int i = 0; i < arr.length / 2; i++) {
-            int temp = arr[i];
-            arr[i] = arr[arr.length - i - 1];
-            arr[arr.length - i - 1] = temp;
-        }
     }
 }
