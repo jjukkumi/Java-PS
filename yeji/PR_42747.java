@@ -1,9 +1,9 @@
 import java.util.*;
 import java.util.stream.*;
 
-class PR_42747 {
+class Solution {
     public int solution(int[] citations) {
-        int answer = 0;
+        int answer = citations.length;
         
         List<Integer> citationList = Arrays.stream(citations).boxed().collect(Collectors.toList());
         
