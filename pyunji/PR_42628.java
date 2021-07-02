@@ -1,31 +1,24 @@
-import java.util.Comparator;
-import java.util.PriorityQueue;
+import java.util.*;
 
 class Solution {
     public int[] solution(String[] operations) {
+        PriorityQueue<Integer> orderedQ = new PriorityQueue<>();
+        PriorityQueue<Integer> revOrdQ = new PriorityQueue<>(Comparator.reverseOrder());
+        
         String DELETE_MAX = "D 1";
         String DELETE_MIN = "D -1";
-
-        /* 정렬방식이 서로 반대인 큐를 생성한다 */
-        PriorityQueue<Integer> priQ = new PriorityQueue<>(Comparator.naturalOrder());
-        PriorityQueue<Integer> reversePriQ = new PriorityQueue<>(Comparator.reverseOrder());
-
-        for (String operation : operations) {
-            if (operation.equals(DELETE_MAX)) {
-                reversePriQ.poll();
-                priQ.clear();
-                priQ.addAll(reversePriQ);
+        for(String operation: operations) {
+            if(operation.equals(DELETE_MAX)) {
+                orderedQ.remove(revOrdQ.poll());
             } else if (operation.equals(DELETE_MIN)) {
-                priQ.poll();
-                reversePriQ.clear();
-                reversePriQ.addAll(priQ);
+                revOrdQ.remove(orderedQ.poll());
             } else {
-                int elem = Integer.parseInt(operation.substring(2));
-                priQ.add(elem);
-                reversePriQ.add(elem);
+                int input = Integer.parseInt(operation.split(" ")[1]);
+                orderedQ.offer(input);
+                revOrdQ.offer(input);
             }
         }
-        if (priQ.isEmpty()) return new int[]{0, 0};
-        else return new int[]{reversePriQ.poll(), priQ.poll()};
+        if (orderedQ.isEmpty()) return new int[] {0,0};
+        return new int[] {revOrdQ.poll(), orderedQ.poll()};
     }
 }
