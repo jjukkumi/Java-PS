@@ -10,10 +10,8 @@ class Solution {
                         .collect(Collectors.joining()));
 
         int count = 0;
-        /* 2가 주어진 숫자로 만들 수 있는지 먼저 검사 */
-        if(isMadeWithGivenNumbers(2, numbers)) count++;
         /* 최대 정수 까지의 모든 숫자를 순회 */
-        for (int i = 3; i <= maxInt; i=i+2) {
+        for(int i = 2; i <= maxInt; i++) {
             /* 주어진 숫자로 만들어졌고, 소수라면 카운트 */
             if(isMadeWithGivenNumbers(i, numbers) && isPrimeNum(i)) count++;
         }
@@ -22,8 +20,7 @@ class Solution {
 
     /* 소수인지 확인 */
     public boolean isPrimeNum(int targetNum){
-        /* 홀수만 검사한다 */
-        for (int i = 3; i <= (int)Math.sqrt(targetNum); i = i + 2) {
+        for (int i = 2; i <= (int)Math.sqrt(targetNum); i++) {
             if (targetNum % i == 0) return false;
         }
         return true;
@@ -31,15 +28,16 @@ class Solution {
 
     /* 주어진 숫자로 만들 수 있는 수인지 확인 */
     public boolean isMadeWithGivenNumbers(int targetNum, String numbers){
-        String[] targetStr = (targetNum + "").split("");
-
-        List<String> numList = Arrays.stream(numbers.split("")).sorted(Comparator.reverseOrder()).collect(Collectors.toList());
-
-        for (String s : targetStr) {
-            /* 주어진 수에 포함되어있지 않으면 remove시 false가 반환된다. */
-            if(!numList.remove(s)) return false;
+        String[] targetStr = String.valueOf(num).split("");
+        int len = targetStr.length;
+        int count = len;
+        for(int i = 0; i < len; i++) {
+            if(numbers.contains(targetStr[i])) {
+                count--;
+                numbers = numbers.replaceFirst(targetStr[i], "");
+            }
         }
-        return true;
+        return count==0;
     }
 
 }
